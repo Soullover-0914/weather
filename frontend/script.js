@@ -42,8 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- NEW: Disaster AI Backend URL ---
     // Match your Flask app's URL
-    const DISASTER_AI_BACKEND_URL = "http://127.0.0.1:5000";
-
+    const DISASTER_AI_BACKEND_URL = "https://weather-n7tq.onrender.com";
     // DOM Elements - Ensure these match your HTML IDs
     const cityInput = document.getElementById('cityInput');
     const searchButton = document.getElementById('searchButton');
@@ -396,9 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Geocoding API error: ${response.statusText} (Status: ${response.status}). Response: ${errorData}`);
             }
             const data = await response.json();
-            if (data.length === 0) {
-                throw new Error(`Could not find coordinates for city: "${city}". Please check the spelling.`);
-            }
             console.log("Geocoding data received:", data[0]); // Log success
             return { lat: data[0].lat, lon: data[0].lon, name: data[0].name, state: data[0].state, country: data[0].country };
         } catch (error) {
@@ -795,10 +791,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const popupContent = `
             <strong>Disaster Alert!</strong><br>
             Type: ${disasterInfo.disaster_type}<br>
-            Status: ${disasterInfo.status.capitalize()}<br>
+            Status: ${disasterInfo.status.charAt(0).toUpperCase() + disasterInfo.status.slice(1)}<br>
             Severity: ${disasterInfo.severity}<br>
             Threat Index (TI): ${threatIndex}
         `;
+        const statusText =
+        disasterInfo.status.charAt(0).toUpperCase() +
+        disasterInfo.status.slice(1);
 
         disasterMarker = L.marker([lat, lon], { icon: disasterIcon }).addTo(map)
             .bindPopup(popupContent)
@@ -835,12 +834,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Call the new function to display the alert on the map
                 displayAIDisasterAlertOnMap(lat, lon, result.disaster_info);
             } else if (result.status === "no_disaster") {
-                console.log(`No disaster detected by AI for ${locationName}.`);
-                if (disasterMarker) { // If no disaster, ensure previous marker is removed
-                    map.removeLayer(disasterMarker);
-                    disasterMarker = null;
-                }
-            } else {
+            console.log(`No disaster detected by AI for ${locationName}.`);
+            
+            if (disasterMarker) {
+                map.removeLayer(disasterMarker);
+                disasterMarker = null;
+            }
+
+    // ✅ USER FEEDBACK (IMPORTANT)
+    displayWeatherAlert("✅ No disaster detected at this location.");
+} else {
                 console.warn(`Unexpected response from AI backend: ${result.message}`);
             }
 
