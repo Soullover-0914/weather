@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "C:\\Users\\Chint\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.packageIndexDepths": [
+        "python-dotenv",
+        "firebase_admin"
+    ]
+}

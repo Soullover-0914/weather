@@ -1,0 +1,15 @@
+# Ignore secrets
+backend/serviceAccountKey.json
+
+# Env files
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Virtual env
+venv/

@@ -1,0 +1,540 @@
+:root {
+    /* Define common colors for buttons and text */
+    --button-bg: rgba(200, 200, 255, 0.2);
+    --button-hover-bg: rgba(200, 200, 255, 0.4);
+    --text-color: #fff;
+    --border-color: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    color: #fff;
+    /* Removed overflow: hidden; from body to allow content to naturally expand */
+    position: relative; /* For positioning background elements */
+}
+
+/* Base background container */
+#weatherBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* Below the main app content */
+    background: linear-gradient(180deg, #87CEEB, #A7D7ED); /* Default clear sky day */
+    transition: background 1.5s ease-in-out; /* Smooth transition for background color */
+}
+
+/* Canvas for particles */
+#weatherParticlesCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Above the background color, below the app content */
+    pointer-events: none; /* Allows clicks to pass through to elements behind */
+}
+
+/* --- Backgrounds based on weather conditions --- */
+
+/* Clear Day */
+#weatherBackground.clear-day {
+    background: linear-gradient(180deg, #f8a711, #f5c116); /* Sky Blue to Lighter Blue */
+}
+
+/* Clear Night */
+#weatherBackground.clear-night {
+    background: linear-gradient(180deg, #1a2a4c, #3a4a7c); /* Deep Blue to Darker Blue */
+}
+
+/* Clouds Day */
+#weatherBackground.clouds-day {
+    background: linear-gradient(180deg, #A9BCCF, #C8D8E8); /* Light Gray Blue to Lighter Gray Blue */
+}
+
+/* Clouds Night */
+#weatherBackground.clouds-night {
+    background: linear-gradient(180deg, #4c5a6c, #6c7a8c); /* Dark Gray Blue to Gray Blue */
+}
+
+/* Rain / Drizzle */
+#weatherBackground.rainy {
+    background: linear-gradient(180deg, #6c7b8b, #8a9ba9); /* Darker Grey to Lighter Grey */
+}
+
+/* Snow */
+#weatherBackground.snowy {
+    background: linear-gradient(180deg, #B0C4DE, #DDEEFF); /* Light Steel Blue to Very Light Blue */
+}
+
+/* Thunderstorm */
+#weatherBackground.thunderstorm {
+    background: linear-gradient(180deg, #333333, #555555); /* Dark Grey to Lighter Dark Grey */
+}
+
+/* Mist / Haze / Fog */
+#weatherBackground.misty {
+    background: linear-gradient(180deg, #C0C0C0, #E0E0E0); /* Silver to Light Grey */
+}
+
+/* Flash class for lightning effect */
+.flash {
+    background-color: rgba(255, 255, 255, 0.8) !important; /* Override existing background */
+    transition: none !important; /* Ensure instant flash */
+}
+
+
+/* --- Weather App Layout (NO BOX / DESKTOP VERSION) --- */
+.weather-app {
+    background: none; /* Make it fully transparent */
+    backdrop-filter: none; /* Remove blur */
+    border-radius: 0; /* Remove border radius */
+    box-shadow: none; /* Remove box shadow */
+    padding: 30px; /* Keep padding for content spacing */
+    width: 90%; /* Wider on desktop */
+    max-width: 1200px; /* Max width for large screens */
+    text-align: center;
+    display: grid; /* Use CSS Grid for layout */
+    grid-template-columns: 1fr; /* Default single column for mobile */
+    gap: 30px; /* Gap between sections */
+    position: relative;
+    z-index: 1;
+    height: 100%; /* Make it fill the height of the body's flex container */
+    /* Removed max-height and overflow-y here for the main app container */
+}
+
+.top-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    grid-column: 1 / -1; /* Span full width on mobile */
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%; /* Take full width of its parent */
+}
+
+.search-bar input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4); /* Add a subtle border */
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1); /* Slightly more transparent input */
+    color: #fff;
+    font-size: 1em;
+    outline: none;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-bar input:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.search-bar button {
+    background: var(--button-bg); /* Use variable */
+    border: 1px solid var(--border-color); /* Use variable */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background: var(--button-hover-bg); /* Use variable */
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.search-bar button i {
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.voice-button {
+    padding: 10px 15px; /* Slightly different padding */
+    background: var(--button-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex; /* To center the icon if it's an image */
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-button:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+}
+
+.voice-button:active {
+    transform: translateY(0);
+}
+
+.location-display h2 {
+    margin: 0;
+    font-size: 2.5em; /* Slightly larger for desktop */
+    font-weight: 500;
+}
+
+.error-message {
+    background-color: rgba(255, 0, 0, 0.2);
+    color: #ffe0e0;
+    padding: 10px;
+    border-radius: 10px;
+    display: none; /* Hidden by default */
+    font-size: 0.9em;
+    grid-column: 1 / -1; /* Span full width for error messages */
+}
+
+/* Main weather section now uses Grid internally */
+.main-weather-section {
+    display: grid; /* Changed to grid */
+    grid-template-rows: auto 1fr auto; /* current-weather (auto), weatherMap (1fr), details-grid (auto) */
+    gap: 20px;
+    grid-column: 1 / -1; /* Span full width on mobile */
+    height: 100%; /* Fill available height in its grid cell */
+}
+
+.current-weather {
+    grid-row: 1 / 2; /* Position in the first row of main-weather-section */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center; /* Center on mobile */
+}
+
+.temperature {
+    font-size: 6em; /* Larger temp */
+    font-weight: bold;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center; /* Center on mobile */
+}
+
+.temperature span {
+    font-size: 1em;
+    line-height: 1;
+}
+
+.sky-condition {
+    font-size: 1.8em; /* Larger */
+    font-weight: 400;
+}
+
+.temp-min-max {
+    font-size: 1em; /* Slightly larger */
+    opacity: 0.9;
+}
+
+.details-grid {
+    grid-row: 3 / 4; /* Position in the third row of main-weather-section */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.08); /* Slight background for grid */
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.detail-item {
+    background: none; /* Remove individual item backgrounds */
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center on mobile */
+    gap: 8px;
+}
+
+.detail-item i {
+    font-size: 1.8em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-item .value {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.detail-item .label {
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+/* Styling for suggestions section */
+.suggestions-section {
+    background: none; /* Removed background */
+    border-radius: 0; /* Removed border-radius */
+    padding: 20px;
+    text-align: left;
+    font-size: 0.9em;
+    line-height: 1.5;
+    /* On mobile, it will span full width of .weather-app */
+    grid-column: 1 / -1;
+    display: flex; /* Make it a flex container to manage its internal content */
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content vertically */
+    /* Ensure content within p tag fits */
+    overflow-y: auto; /* Allow scrolling only if suggestions text is too long */
+    max-height: 100%; /* Limit height to its container */
+}
+
+.suggestions-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* Ensure the paragraph within suggestions also respects height limits */
+.suggestions-section .suggestions-text {
+    flex-grow: 1; /* Allow it to take up available space */
+    overflow-y: auto; /* Enable internal scrolling if text is too long */
+    padding-right: 10px; /* Add some padding for scrollbar if present */
+}
+
+
+/* Add styling for the weather map container */
+#weatherMap {
+    grid-row: 2 / 3; /* Position in the second row of main-weather-section */
+    height: auto; /* Let grid manage height */
+    width: 100%; /* Ensure it takes full width of its container */
+    border-radius: 15px; /* Match other rounded elements */
+    overflow: hidden; /* Hide anything that goes outside the border-radius */
+    margin-bottom: 0; /* No margin as gap handles spacing */
+    background-color: rgba(0, 0, 0, 0.1); /* Placeholder background */
+}
+
+/* --- Media Queries (Moved to top level) --- */
+
+@media (min-width: 768px) {
+    .weather-app {
+        grid-template-columns: 1fr 2fr; /* Left column for search/suggestions, right for main weather */
+        grid-template-rows: auto 1fr; /* Top row for top-bar, bottom row for suggestions (left) and main-weather-section (right, spanning both) */
+        height: 100vh; /* Fill entire viewport height on desktop */
+        align-items: start; /* Align grid items to the start of their cells */
+        padding: 20px; /* Ensure padding is consistent and doesn't cause overflow */
+        gap: 20px; /* Adjust gap for better spacing */
+    }
+
+    .top-bar {
+        grid-column: 1 / 2; /* First column */
+        grid-row: 1 / 2; /* First row */
+    }
+
+    .suggestions-section {
+        grid-column: 1 / 2; /* First column */
+        grid-row: 2 / 3; /* Second row */
+        height: 100%; /* Fill available height in its grid cell */
+    }
+
+    .main-weather-section {
+        grid-column: 2 / 3; /* Second column */
+        grid-row: 1 / 3; /* Span both rows */
+        height: 100%; /* Fill available height in its grid cells */
+        /* No justify-content here, as internal grid handles distribution */
+    }
+
+    /* #weatherMap height is now managed by main-weather-section's grid-template-rows */
+    #weatherMap {
+        height: auto; /* Let the grid manage its height */
+        min-height: 200px; /* Keep a minimum height for usability */
+    }
+
+    /* Ensure current-weather and details-grid align to start on desktop */
+    .current-weather, .detail-item {
+        align-items: flex-start;
+        text-align: left;
+    }
+    .temperature {
+        justify-content: flex-start;
+        height:fit-content;
+    }
+    .search-bar {
+        justify-content: flex-start;
+    }
+}
+
+/* Media query for smaller screens */
+@media (max-width: 767px) {
+    body {
+        /* Allow scrolling on mobile body if content overflows */
+        overflow-y: auto;
+    }
+    .weather-app {
+        width: 90%;
+        padding: 20px;
+        height: auto; /* Allow height to expand based on content */
+        max-height: none; /* Remove max-height to prevent clipping */
+        overflow-y: visible; /* Ensure no internal scroll on mobile app container */
+    }
+    .current-weather, .detail-item {
+        align-items: center;
+        text-align: center;
+    }
+    .temperature {
+        justify-content: center;
+    }
+    .search-bar {
+        justify-content: center;
+    }
+    /* Ensure suggestions section also spans full width on mobile */
+    .suggestions-section {
+        grid-column: 1 / -1;
+        overflow-y: visible; /* No internal scroll on mobile */
+        max-height: none; /* No max height on mobile */
+    }
+    .suggestions-section .suggestions-text {
+        overflow-y: visible; /* No internal scroll on mobile */
+        padding-right: 0;
+    }
+    #weatherMap {
+        height: 250px; /* Fixed height for map on mobile for consistency */
+        min-height: auto;
+    }
+}
+/* style.css - Add or verify these styles */
+
+/* Basic styling for the weather background to cover the screen */
+#weatherBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* Ensure it's behind other content */
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out, background-color 1s ease-in-out;
+}
+
+/* Style for the thunderstorm background */
+.thunderstorm {
+    background-color: #2c3e50; /* Dark, stormy blue-grey */
+    /* You can also add a subtle gradient or pattern here if desired */
+    background-image: linear-gradient(to bottom, #333, #1a1a1a);
+}
+
+/* Style for the lightning flash effect */
+.flash {
+    background-color: rgba(255, 255, 255, 0.9); /* A bright, almost opaque white flash */
+    transition: background-color 0.05s linear; /* A very quick transition for a sharp flash */
+}
+
+/* Ensure the canvas is also full screen and behind content */
+#weatherParticlesCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensure it's above the background but behind other content */
+    pointer-events: none; /* Allows clicks to pass through to elements below */
+}
+/* Custom styles for the new Disaster AI button */
+.disaster-ai-button {
+    background-color: #007bff; /* Blue */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 25px;
+    text-decoration: none; /* Remove underline for links */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+/* Custom styles for the new Disaster AI button */
+.disaster-ai-button {
+    background-color: #007bff; /* Blue */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 25px;
+    text-decoration: none; /* Remove underline for links */
+    font-weight: bold;
+    display: flex !important; /* Ensure it's always a flex container */
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: relative; /* Ensure z-index works */
+    z-index: 11; /* Bring button to front */
+}
+
+.disaster-ai-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+.disaster-ai-button:active {
+    transform: translateY(0);
+}
+
+/* Adjustments for the top-bar layout to accommodate the new button */
+.top-bar {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    justify-content: space-between; /* Distribute items */
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px; /* Space between elements in the top bar */
+    position: relative; /* Ensure z-index works for children */
+    z-index: 10; /* Ensure top-bar is above background/canvas */
+    min-height: 60px; /* Ensure top-bar has a minimum height */
+}
+
+/* Ensure search-bar and location-display adapt */
+.search-bar {
+    flex-grow: 1; /* Allow search bar to take available space */
+    display: flex;
+    gap: 10px;
+    max-width: 500px; /* Limit its max width */
+}
+
+.location-display {
+    flex-shrink: 0; /* Prevent location display from shrinking too much */
+    text-align: right; /* Align text to the right */
+}
+
+/* Responsive adjustments for the top-bar */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column; /* Stack items vertically on small screens */
+        align-items: center;
+    }
+    .search-bar {
+        width: 100%; /* Full width on small screens */
+        max-width: none; /* Remove max-width constraint */
+        margin-bottom: 15px;
+    }
+    .location-display {
+        text-align: center; /* Center location name */
+        margin-bottom: 15px;
+    }
+    .disaster-ai-button {
+        width: 100%; /* Full width button on small screens */
+        justify-content: center; /* Center content within the button */
+    }
+}
