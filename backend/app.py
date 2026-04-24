@@ -109,7 +109,7 @@ def log_communication_to_firestore(data):
 # ---------------- ROUTES ----------------
 @app.route('/')
 def home():
-    return "Backend Running"
+    return "Disaster Management AI Backend is running!"
 
 @app.route('/health')
 def health():
