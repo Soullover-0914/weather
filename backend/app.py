@@ -110,9 +110,13 @@ def log_communication_to_firestore(data):
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
-        "status": "running",
-        "message": "Disaster Management Backend Active"
+        "status": "success",
+        "message": "Disaster Management Backend is LIVE 🚀"
     })
+
+@app.route('/test')
+def test():
+    return jsonify({"status": "success", "message": "Test route working"})
 
 @app.route('/health')
 def health():
