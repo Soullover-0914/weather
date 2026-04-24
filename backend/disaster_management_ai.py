@@ -3,6 +3,7 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 import time # For simulating delays
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -21,14 +22,14 @@ AUTHORITIES_DATA = [
 ]
 
 # --- SMTP Configuration for Sending Emails ---
-# IMPORTANT: Replace these with your actual email provider's SMTP details.
+# IMPORTANT: These credentials should be set via environment variables.
 # For Gmail, you might need to generate an "App Password" if 2FA is enabled.
 # See: https://support.google.com/accounts/answer/185833
 SMTP_CONFIG = {
-    "SMTP_SERVER": "smtp.gmail.com",  # e.g., "smtp.gmail.com" for Gmail, "smtp-mail.outlook.com" for Outlook
-    "SMTP_PORT": 587,                 # 587 for TLS/STARTTLS, 465 for SSL
-    "SENDER_EMAIL": "jyothiswaroop0914@gmail.com", # Replace with your actual sender email
-    "SENDER_PASSWORD": "nqem mlok wvqs hofu" # Replace with your actual password or App Password
+    "SMTP_SERVER": os.getenv("SMTP_SERVER", "smtp.gmail.com"),  # e.g., "smtp.gmail.com" for Gmail
+    "SMTP_PORT": int(os.getenv("SMTP_PORT", 587)),              # 587 for TLS/STARTTLS, 465 for SSL
+    "SENDER_EMAIL": os.getenv("SENDER_EMAIL", ""),              # Set via environment variable
+    "SENDER_PASSWORD": os.getenv("SENDER_PASSWORD", "")         # Set via environment variable (App Password for Gmail)
 }
 
 def send_email(recipient_email, subject, body):
