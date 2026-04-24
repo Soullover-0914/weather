@@ -11,8 +11,8 @@ from typing import Any, cast
 import json
 import sqlite3
 
-# Add path
-sys.path.append(os.path.dirname(__file__))
+# Add path before importing local modules
+sys.path.insert(0, os.path.dirname(__file__))
 
 from disaster_management_ai import process_disaster_alert, AUTHORITIES_DATA
 
