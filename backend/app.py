@@ -107,9 +107,12 @@ def log_communication_to_firestore(data):
             print("Firestore log error:", e)
 
 # ---------------- ROUTES ----------------
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    return "Disaster Management AI Backend is running!"
+    return jsonify({
+        "status": "running",
+        "message": "Disaster Management Backend Active"
+    })
 
 @app.route('/health')
 def health():
