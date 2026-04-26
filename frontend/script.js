@@ -872,19 +872,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.lang = 'en-US';
+        recognition.continuous = true;
         recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
         recognition.onstart = () => {
             isListening = true;
             console.log("Voice recognition started. Speak now.");
             if (voiceInputButton) voiceInputButton.classList.add('listening');
-            displayError("Listening... Speak a city name.");
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                isSpeaking = false;
-            }
+            clearError();
         };
 
         recognition.onresult = (event) => {
@@ -905,29 +901,29 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onerror = (event) => {
             console.error("Speech recognition error:", event.error);
             if (event.error === 'no-speech') {
-                displayError("No speech detected. Please try again.");
+                console.log("No speech detected — retrying...");
+                return;
+            }
+            if (event.error === 'audio-capture') {
+                displayError("🎤 Microphone not detected.");
             } else if (event.error === 'not-allowed') {
-                displayError("Microphone access denied. Please allow in browser settings.");
+                displayError("🚫 Microphone permission denied.");
             } else {
-                displayError(`Speech recognition error: ${event.error}`);
+                displayError("Voice input error. Try again.");
             }
             if (voiceInputButton) voiceInputButton.classList.remove('listening');
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
         };
 
         recognition.onend = () => {
-            isListening = false;
             console.log("Voice recognition ended.");
-            clearError();
+            isListening = false;
             if (voiceInputButton) voiceInputButton.classList.remove('listening');
         };
 
         if (voiceInputButton) {
             voiceInputButton.addEventListener('click', () => {
                 console.log("Voice input button clicked");
-                // ✅ STOP SPEAKING IMMEDIATELY
+                // ✅ STOP SPEAKING
                 if (window.speechSynthesis.speaking) {
                     window.speechSynthesis.cancel();
                     isSpeaking = false;
@@ -935,12 +931,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ✅ STOP OLD LISTENING
                 if (recognition && isListening) {
                     recognition.stop();
-                    isListening = false;
-                    console.log("Stopped previous voice recognition session.");
                 }
-                // ✅ START NEW LISTENING
-                recognition.start();
-                isListening = true;
+                // ✅ SMALL DELAY → PREVENT INSTANT STOP BUG
+                setTimeout(() => {
+                    recognition.start();
+                }, 300);
             });
         }
     } else {
