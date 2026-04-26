@@ -87,6 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMarker; // Variable to hold the Leaflet marker
     let activeWeatherLayer = null; // To keep track of the currently active weather layer
     let disasterMarker; // Marker for AI-detected disaster
+    let isSpeaking = false;
+    let isListening = false;
 
     // OpenWeatherMap Tile Layer URLs for weather features (requires API key)
     const OWM_TILE_LAYERS = {
@@ -443,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Update displayed location name immediately with "Loading..."
             if (locationNameElem) {
-                locationNameElem.textContent = `Loading ${city}...`;
+                locationNameElem.textContent = `Loading ${city}... ⏳`;
             }
 
             if (USE_MOCK_DATA) {
@@ -479,10 +481,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentSkyCondition = currentWeatherData.weather[0].main;
             const currentIconCode = currentWeatherData.weather[0].icon;
 
-            // Update UI elements
             updateUI(currentWeatherData, resolvedCityName);
-            updateBackground(currentSkyCondition, isDaytime(currentIconCode));
 
+            // ✅ ADD THIS LINE (ONLY HERE)
+            if (locationNameElem) {
+                locationNameElem.textContent = resolvedCityName;
+            }
+
+            updateBackground(currentSkyCondition, isDaytime(currentIconCode));
             // Check and display weather alerts (from OpenWeatherMap)
             checkAndDisplayAlerts(currentWeatherData);
 
@@ -680,7 +686,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("No specific female voice found. Using default voice.");
         }
         // --- End Voice Selection Logic ---
+        // ✅ STOP MIC BEFORE SPEAKING
+        if (recognition && isListening) {
+            recognition.stop();
+        }
 
+        isSpeaking = true;
+        utterance.onend = () => {
+            isSpeaking = false;
+        };
         window.speechSynthesis.speak(utterance);
         console.log("Speaking weather summary...");
     }
@@ -834,16 +848,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Call the new function to display the alert on the map
                 displayAIDisasterAlertOnMap(lat, lon, result.disaster_info);
             } else if (result.status === "no_disaster") {
-            console.log(`No disaster detected by AI for ${locationName}.`);
-            
-            if (disasterMarker) {
-                map.removeLayer(disasterMarker);
-                disasterMarker = null;
-            }
-
-    // ✅ USER FEEDBACK (IMPORTANT)
-    displayWeatherAlert("✅ No disaster detected at this location.");
-} else {
+                console.log(`No disaster detected by AI for ${locationName}.`);
+                if (disasterMarker) {
+                    map.removeLayer(disasterMarker);
+                    disasterMarker = null;
+                }
+                // ✅ USER FEEDBACK (IMPORTANT)
+                displayWeatherAlert("✅ No disaster detected at this location.");
+            } else {
                 console.warn(`Unexpected response from AI backend: ${result.message}`);
             }
 
@@ -865,43 +877,48 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.interimResults = false;
 
         recognition.onstart = () => {
+            isListening = true;
             console.log("Voice recognition started. Speak now.");
             if (voiceInputButton) voiceInputButton.classList.add('listening');
             displayError("Listening... Speak a city name.");
-            // Use window.speechSynthesis
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
+                isSpeaking = false;
             }
         };
 
         recognition.onresult = (event) => {
+            // ❌ IGNORE SYSTEM SPEECH
+            if (isSpeaking) {
+                console.log("Ignored system voice");
+                return;
+            }
             const transcript = event.results[0][0].transcript.trim();
             console.log("Speech recognized:", transcript);
             if (cityInput) cityInput.value = transcript;
             clearError();
-
             getWeatherData(transcript)
-                .then(data => speakWeatherSummary(data, data.name)) // Pass data to speakWeatherSummary
-                .catch(error => console.error("Error during voice search and summary:", error)); // Error handled
+                .then(data => speakWeatherSummary(data, data.name))
+                .catch(error => console.error("Error during voice search and summary:", error));
         };
 
         recognition.onerror = (event) => {
             console.error("Speech recognition error:", event.error);
             if (event.error === 'no-speech') {
                 displayError("No speech detected. Please try again.");
-            } else if (event.error === 'not-allowed') { // Corrected syntax here
+            } else if (event.error === 'not-allowed') {
                 displayError("Microphone access denied. Please allow in browser settings.");
             } else {
                 displayError(`Speech recognition error: ${event.error}`);
             }
             if (voiceInputButton) voiceInputButton.classList.remove('listening');
-            // Use window.speechSynthesis
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
             }
         };
 
         recognition.onend = () => {
+            isListening = false;
             console.log("Voice recognition ended.");
             clearError();
             if (voiceInputButton) voiceInputButton.classList.remove('listening');
@@ -909,8 +926,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (voiceInputButton) {
             voiceInputButton.addEventListener('click', () => {
-                console.log("Voice input button clicked. Starting recognition.");
+                console.log("Voice input button clicked");
+                // ✅ STOP SPEAKING IMMEDIATELY
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    isSpeaking = false;
+                }
+                // ✅ STOP OLD LISTENING
+                if (recognition && isListening) {
+                    recognition.stop();
+                    isListening = false;
+                    console.log("Stopped previous voice recognition session.");
+                }
+                // ✅ START NEW LISTENING
                 recognition.start();
+                isListening = true;
             });
         }
     } else {

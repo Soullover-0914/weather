@@ -28,7 +28,7 @@ AUTHORITIES_DATA = [
 SMTP_CONFIG = {
     "SMTP_SERVER": os.getenv("SMTP_SERVER", "smtp.gmail.com"),  # e.g., "smtp.gmail.com" for Gmail
     "SMTP_PORT": int(os.getenv("SMTP_PORT", 587)),              # 587 for TLS/STARTTLS, 465 for SSL
-    "SENDER_EMAIL": os.getenv("SENDER_EMAIL", "jyothiswaroop0914@gmail.com"),              # Set via environment variable
+    "SENDER_EMAIL": os.getenv("SENDER_EMAIL", "amareshchavali2014@gmail.com"),              # Set via environment variable
     "SENDER_PASSWORD": os.getenv("SENDER_PASSWORD", "gpyz pdex ezmt peko")         # Set via environment variable (App Password for Gmail)
 }
 
