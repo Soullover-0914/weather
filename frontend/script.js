@@ -899,20 +899,22 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         recognition.onerror = (event) => {
-            console.error("Speech recognition error:", event.error);
-            if (event.error === 'no-speech') {
-                console.log("No speech detected — retrying...");
-                return;
-            }
-            if (event.error === 'audio-capture') {
-                displayError("🎤 Microphone not detected.");
-            } else if (event.error === 'not-allowed') {
-                displayError("🚫 Microphone permission denied.");
-            } else {
-                displayError("Voice input error. Try again.");
-            }
-            if (voiceInputButton) voiceInputButton.classList.remove('listening');
-        };
+        console.error("Speech recognition error:", event.error);
+
+            // ❌ Ignore no-speech (VERY IMPORTANT)
+        if (event.error === "no-speech") {
+            console.log("No speech detected — ignoring");
+        return;
+    }
+
+        if (event.error === "audio-capture") {
+            displayError("🎤 Microphone not detected.");
+        } else if (event.error === "not-allowed") {
+            displayError("🚫 Microphone permission denied.");
+        } else {
+            displayError("Voice input error. Try again.");
+    }
+};
 
         recognition.onend = () => {
             console.log("Voice recognition ended.");
