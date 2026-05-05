@@ -936,10 +936,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 // ✅ SMALL DELAY → PREVENT INSTANT STOP BUG
                 setTimeout(() => {
-                    recognition.start();
-                }, 300);
-            });
-        }
+                    if (recognition) {
+                        recognition.start();
+                    } else {
+                        console.error("Speech recognition not available");
+                    }
+                    }, 300);
+                });
+            }
     } else {
         console.warn("Web Speech API not supported in this browser.");
         if (voiceInputButton) {
