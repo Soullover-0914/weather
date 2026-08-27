@@ -26,12 +26,12 @@ ALLOWED_ORIGINS = [
     "http://localhost:5000",
     "http://127.0.0.1:5501",
     "http://localhost:5501",
-    "https://weather-xxxx.vercel.app"
+    "https://weather-ruby-ten.vercel.app"
 ]
 
 CORS(
     app,
-    resources={r"/*": {"origins": "*"}},
+    resources={r"/*": {"origins": ALLOWED_ORIGINS}},
     supports_credentials=True
 
 )

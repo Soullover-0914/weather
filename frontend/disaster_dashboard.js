@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Configuration ---
     // ✅ FIX: Force local backend during development (prevents 404)
-    const DISASTER_AI_BACKEND_URL = "http://127.0.0.1:5000"; // Ensure this matches your Flask app's URL
+    const DISASTER_AI_BACKEND_URL = "https://weather-n7tq.onrender.com"; // Ensure this matches your Flask app's URL
     // OpenWeatherMap API Key for reverse geocoding on this dashboard
     const API_KEY = '1527d2adc8fe3d42482dc313a6852fbd'; // Use your OpenWeatherMap API Key here
     const BASE_URL_REVERSE_GEOCODING = 'https://api.openweathermap.org/geo/1.0/reverse';
