@@ -41,8 +41,8 @@ def send_email(recipient_email, subject, body):
     smtp_server = SMTP_CONFIG["SMTP_SERVER"]
     smtp_port = SMTP_CONFIG["SMTP_PORT"]
 
-    if not all([sender_email, sender_password, smtp_server, smtp_port]):
-        print("ERROR: SMTP configuration is incomplete. Cannot send email.")
+    if not sender_email or not sender_password:
+        print("ERROR: SMTP credentials are not configured. Skipping email.")
         return False
 
     msg = MIMEText(body)
