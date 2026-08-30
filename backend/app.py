@@ -105,6 +105,73 @@ def log_communication_to_firestore(data):
         except Exception as e:
             print("Firestore log error:", e)
 
+# ---------------- AUTHORITY API ----------------
+
+@app.route('/api/authorities', methods=['GET'])
+def get_authorities():
+    try:
+        db = get_db()
+        rows = db.execute('SELECT id, name, email, location, type FROM authorities ORDER BY id DESC').fetchall()
+        return jsonify([dict(row) for row in rows]), 200
+    except Exception as e:
+        print(f'Error fetching authorities: {e}')
+        return jsonify({'error': 'Failed to fetch authorities'}), 500
+
+@app.route('/api/authorities', methods=['POST'])
+def add_authority():
+    data = request.get_json(silent=True) or {}
+    name = str(data.get('name', '')).strip()
+    email = str(data.get('email', '')).strip()
+    location = str(data.get('location', '')).strip()
+    authority_type = str(data.get('type', '')).strip()
+    if not all([name, email, location, authority_type]):
+        return jsonify({'error': 'name, email, location and type are required'}), 400
+    try:
+        db = get_db()
+        cursor = db.execute('INSERT INTO authorities (name, email, location, type) VALUES (?, ?, ?, ?)', (name, email, location, authority_type))
+        db.commit()
+        return jsonify({'message': 'Authority added successfully', 'id': cursor.lastrowid}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'An authority with this email already exists'}), 409
+    except Exception as e:
+        print(f'Error adding authority: {e}')
+        return jsonify({'error': 'Failed to add authority'}), 500
+
+@app.route('/api/authorities/<int:authority_id>', methods=['PUT'])
+def update_authority(authority_id):
+    data = request.get_json(silent=True) or {}
+    name = str(data.get('name', '')).strip()
+    email = str(data.get('email', '')).strip()
+    location = str(data.get('location', '')).strip()
+    authority_type = str(data.get('type', '')).strip()
+    if not all([name, email, location, authority_type]):
+        return jsonify({'error': 'name, email, location and type are required'}), 400
+    try:
+        db = get_db()
+        cursor = db.execute('UPDATE authorities SET name=?, email=?, location=?, type=? WHERE id=?', (name, email, location, authority_type, authority_id))
+        db.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'error': 'Authority not found'}), 404
+        return jsonify({'message': 'Authority updated successfully'}), 200
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'An authority with this email already exists'}), 409
+    except Exception as e:
+        print(f'Error updating authority: {e}')
+        return jsonify({'error': 'Failed to update authority'}), 500
+
+@app.route('/api/authorities/<int:authority_id>', methods=['DELETE'])
+def delete_authority(authority_id):
+    try:
+        db = get_db()
+        cursor = db.execute('DELETE FROM authorities WHERE id=?', (authority_id,))
+        db.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'error': 'Authority not found'}), 404
+        return jsonify({'message': 'Authority deleted successfully'}), 200
+    except Exception as e:
+        print(f'Error deleting authority: {e}')
+        return jsonify({'error': 'Failed to delete authority'}), 500
+
 # ---------------- ROUTES ----------------
 @app.route('/', methods=['GET'])
 def home():
@@ -152,3 +219,4 @@ def trigger_alert():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+

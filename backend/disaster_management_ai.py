@@ -29,7 +29,7 @@ SMTP_CONFIG = {
     "SMTP_SERVER": os.getenv("SMTP_SERVER", "smtp.gmail.com"),  # e.g., "smtp.gmail.com" for Gmail
     "SMTP_PORT": int(os.getenv("SMTP_PORT", 587)),              # 587 for TLS/STARTTLS, 465 for SSL
     "SENDER_EMAIL": os.getenv("SENDER_EMAIL", "amareshchavali2014@gmail.com"),              # Set via environment variable
-    "SENDER_PASSWORD": os.getenv("SENDER_PASSWORD", "gpyz pdex ezmt peko")         # Set via environment variable (App Password for Gmail)
+    "SENDER_PASSWORD": os.getenv("SENDER_PASSWORD", "")         # Set via environment variable (App Password for Gmail)
 }
 
 def send_email(recipient_email, subject, body):
@@ -178,3 +178,4 @@ if __name__ == '__main__':
     test_location_3 = "New York"
     result_3 = process_disaster_alert(test_location_3)
     print(f"\nResult for {test_location_3}:\n{result_3}")
+
