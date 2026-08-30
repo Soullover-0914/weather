@@ -52,7 +52,7 @@ def send_email(recipient_email, subject, body):
 
     try:
         print(f"Attempting to send email to {recipient_email} via {smtp_server}:{smtp_port}...")
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
             server.starttls()  # Upgrade the connection to a secure encrypted SSL/TLS connection
             server.login(sender_email, sender_password)
             server.send_message(msg)
