@@ -16,9 +16,9 @@ load_dotenv()
 # In a real-world integrated system, process_disaster_alert would ideally
 # receive the relevant authority emails from app.py after app.py fetches them from its DB.
 AUTHORITIES_DATA = [
-    {"name": "City Emergency Services", "email": "swaroop0914@gmail.com", "location": "Vadlamudi", "type": "city"},
-    {"name": "State Disaster Response", "email": "swaroop0914@gmail.com", "location": "Andhra Pradesh", "type": "state"},
-    {"name": "National Disaster Management", "email": "komalipriyach@gmail.com", "location": "India", "type": "national"},
+    {"name": "City Emergency Services", "email": "jyothiswaroop0914@gmail.com", "location": "Vadlamudi", "type": "city"},
+    {"name": "State Disaster Response", "email": "jyothiswaroop0914@gmail.com", "location": "Andhra Pradesh", "type": "state"},
+    {"name": "National Disaster Management", "email": "jyothiswaroop0914@gmail.com", "location": "India", "type": "national"},
     {"name": "Local Police Station", "email": "local.police@example.com", "location": "Tenali", "type": "city"},
     {"name": "Village Head", "email": "village.head@example.com", "location": "Pedavadlapudi", "type": "village"},
     {"name": "Medical Services", "email": "medical.services@example.com", "location": "Guntur", "type": "city"},
