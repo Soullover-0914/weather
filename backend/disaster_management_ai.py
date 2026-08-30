@@ -1,6 +1,9 @@
 # disaster_management_ai.py
 import random
 import smtplib
+import urllib.request
+import urllib.error
+import json
 from email.mime.text import MIMEText
 import time # For simulating delays
 import os
@@ -13,9 +16,9 @@ load_dotenv()
 # In a real-world integrated system, process_disaster_alert would ideally
 # receive the relevant authority emails from app.py after app.py fetches them from its DB.
 AUTHORITIES_DATA = [
-    {"name": "City Emergency Services", "email": "city.emergency@example.com", "location": "Vadlamudi", "type": "city"},
-    {"name": "State Disaster Response", "email": "state.response@example.com", "location": "Andhra Pradesh", "type": "state"},
-    {"name": "National Disaster Management", "email": "national.dm@example.com", "location": "India", "type": "national"},
+    {"name": "City Emergency Services", "email": "swaroop0914@gmail.com", "location": "Vadlamudi", "type": "city"},
+    {"name": "State Disaster Response", "email": "swaroop0914@gmail.com", "location": "Andhra Pradesh", "type": "state"},
+    {"name": "National Disaster Management", "email": "komalipriyach@gmail.com", "location": "India", "type": "national"},
     {"name": "Local Police Station", "email": "local.police@example.com", "location": "Tenali", "type": "city"},
     {"name": "Village Head", "email": "village.head@example.com", "location": "Pedavadlapudi", "type": "village"},
     {"name": "Medical Services", "email": "medical.services@example.com", "location": "Guntur", "type": "city"},
@@ -34,36 +37,47 @@ SMTP_CONFIG = {
 
 def send_email(recipient_email, subject, body):
     """
-    Sends an email using the configured SMTP server.
+    Sends an email using the Resend API.
     """
-    sender_email = SMTP_CONFIG["SENDER_EMAIL"]
-    sender_password = SMTP_CONFIG["SENDER_PASSWORD"]
-    smtp_server = SMTP_CONFIG["SMTP_SERVER"]
-    smtp_port = SMTP_CONFIG["SMTP_PORT"]
+    api_key = os.getenv("RESEND_API_KEY", "")
 
-    if not sender_email or not sender_password:
-        print("ERROR: SMTP credentials are not configured. Skipping email.")
+    if not api_key:
+        print("ERROR: RESEND_API_KEY is not configured. Skipping email.")
         return False
 
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
+    sender_email = os.getenv("SENDER_EMAIL", "onboarding@resend.dev")
+
+    payload = {
+        "from": sender_email,
+        "to": [recipient_email],
+        "subject": subject,
+        "text": body
+    }
 
     try:
-        print(f"Attempting to send email to {recipient_email} via {smtp_server}:{smtp_port}...")
-        with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-            server.starttls()  # Upgrade the connection to a secure encrypted SSL/TLS connection
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
-        print(f"Email sent successfully to {recipient_email}")
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.resend.com/emails",
+            data=data,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "Disaster-Management-AI"
+            },
+            method="POST"
+            )
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode("utf-8"))
+
+        print(f"Email sent successfully to {recipient_email}: {result}")
         return True
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"ERROR: SMTP Authentication failed for {sender_email}. Check your email and password (or App Password). Details: {e}")
+
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="replace")
+        print(f"ERROR: Resend API failed for {recipient_email}: {e.code} {error_body}")
         return False
-    except smtplib.SMTPConnectError as e:
-        print(f"ERROR: SMTP Connection failed to {smtp_server}:{smtp_port}. Check server address, port, and network connectivity. Details: {e}")
-        return False
+
     except Exception as e:
         print(f"ERROR: Failed to send email to {recipient_email}. Details: {e}")
         return False
